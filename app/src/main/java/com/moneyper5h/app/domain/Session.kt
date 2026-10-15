@@ -71,7 +71,7 @@ object SessionReducer {
             if (!s.canRecord(now) || cents !in 1..Money.MAX_CENTS) return
             s = s.copy(ledger = s.ledger.copy(
                 records = s.ledger.records + UsageRecord(id, cents, now), draft = Draft(),
-            ), deadline = null, dialog = Dialog.NONE, message = "已记下 ${Money.display(cents)}")
+            ), deadline = null, dialog = Dialog.NONE, message = null)
         }
         // Check expiration BEFORE a timer or explicit save can write a record.
         if (!s.canRecord(now)) {

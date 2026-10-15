@@ -117,22 +117,21 @@ private fun UsagePage(state: UsageUiState, dispatch: (Action) -> Unit) {
             quotas.forEachIndexed { index, quota -> QuotaCard(if (index == 0) "5小时限额" else "每周限额", quota, plan != null, state.now, compact) }
             Column(Modifier.fillMaxWidth().background(Soft, RoundedCornerShape(14.dp)).padding(12.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("待记录", fontSize = 12.sp, lineHeight = 16.sp, color = Muted)
-                        Text(Money.display(draft.cents), fontSize = if (compact) 25.sp else 29.sp, lineHeight = if (compact) 30.sp else 36.sp, fontWeight = FontWeight.SemiBold)
-                    }
+                    Text(Money.display(draft.cents), fontSize = if (compact) 25.sp else 29.sp,
+                        lineHeight = if (compact) 30.sp else 36.sp, fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f).semantics { contentDescription = "输入金额 ${Money.decimal(draft.cents)} 元" })
                     OutlinedButton(onClick = { dispatch(Action.Open(Dialog.AMOUNT)) }, enabled = enabled,
                         shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(horizontal = 10.dp)) { Text("直接输入", fontSize = 12.sp) }
                 }
                 Spacer(Modifier.height(5.dp))
-                LinearProgressIndicator(progress = { (s.remaining(state.elapsed).toFloat() / Draft.WAIT_MS).coerceIn(0f, 1f) },
-                    modifier = Modifier.fillMaxWidth().height(3.dp), color = if (draft.cents > 0) Ink else Soft, trackColor = Soft)
-                Text(when {
-                    !enabled -> if (draft.hasContent) "草稿已保留，设置倍数后继续" else "设置倍数后开始记录"
-                    draft.held && draft.hasContent -> "草稿已保留，继续编辑后记下"
-                    draft.cents == 0L -> "点金额，松手后自动记下"
-                    else -> "松手后自动记下"
-                }, fontSize = 12.sp, lineHeight = 16.sp, color = Muted, modifier = Modifier.padding(top = 4.dp))
+                if (draft.cents > 0) {
+                    LinearProgressIndicator(progress = { (s.remaining(state.elapsed).toFloat() / Draft.WAIT_MS).coerceIn(0f, 1f) },
+                        modifier = Modifier.fillMaxWidth().height(3.dp), color = Ink, trackColor = Soft)
+                } else Spacer(Modifier.height(3.dp))
+                if (draft.hasContent && (draft.held || !enabled)) {
+                    Text(if (enabled) "已暂存，修改后继续" else "已暂存", fontSize = 12.sp, lineHeight = 16.sp,
+                        color = Muted, modifier = Modifier.padding(top = 4.dp))
+                }
             }
             SessionReducer.denominations.chunked(5).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -255,11 +254,10 @@ private fun EntryDialog(state: UsageUiState, dispatch: (Action) -> Unit, confirm
             OutlinedTextField(value = value, onValueChange = {
                 value = it.take(if (amount) 32 else 16)
                 if (amount) dispatch(Action.Input(value))
-            }, label = { Text(if (amount) "这笔金额（元）" else "倍数（x）") }, singleLine = true, enabled = !amount || allowed,
+            }, label = { Text(if (amount) "金额（元）" else "倍数（x）") }, singleLine = true, enabled = !amount || allowed,
                 modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { if (parsed != null && (!amount || allowed)) submit() }))
             if (amount) {
-                Text(if (s.ledger.draft.cents > 0) "修改当前待记录金额，确认后只记一笔。" else "输入后点确认记下。", fontSize = 13.sp, color = Muted)
                 Text("最多 ¥999999.99。", fontSize = 12.sp, color = Muted)
                 if (!allowed) {
                     Text("订阅已过期，输入已暂存", fontSize = 13.sp)
@@ -278,6 +276,6 @@ private fun EntryDialog(state: UsageUiState, dispatch: (Action) -> Unit, confirm
             s.message?.let { Text(it, fontSize = 12.sp, color = MaterialTheme.colorScheme.error) }
         }
     }, confirmButton = {
-        TextButton(onClick = submit, enabled = parsed != null && (!amount || allowed)) { Text(if (amount) "确认记下" else "确认设置") }
+        TextButton(onClick = submit, enabled = parsed != null && (!amount || allowed)) { Text(if (amount) "保存" else "确认设置") }
     }, dismissButton = { TextButton(onClick = { dispatch(Action.Close) }) { Text("取消") } })
 }
