@@ -16,7 +16,9 @@
 
 当前版本为 **0.2.3**，支持 Android 11 及以上。
 
-安装包通过 GitHub 仓库的 **Releases** 页面提供，APK 不存入源码历史。目前尚未发布正式签名的安装包，可以先从源码构建体验；开发用 Debug 包与正式发布包使用不同签名，不能直接互相覆盖安装。
+从 [v0.2.3 Release](https://github.com/ExamineeRedBamboo/money-per-5h/releases/tag/v0.2.3) 下载正式签名的安装包，或直接下载 [APK](https://github.com/ExamineeRedBamboo/money-per-5h/releases/download/v0.2.3/money-per-5h-0.2.3.apk) 与 [SHA-256 校验文件](https://github.com/ExamineeRedBamboo/money-per-5h/releases/download/v0.2.3/SHA256SUMS.txt)。APK 不存入源码历史。
+
+开发用 Debug 包与正式发布包使用不同签名，不能直接互相覆盖安装。若已安装开发包，卸载后才能安装正式包；卸载会清除本地账本，目前没有导出功能。后续正式版沿用同一发布签名。
 
 ## 开发
 
