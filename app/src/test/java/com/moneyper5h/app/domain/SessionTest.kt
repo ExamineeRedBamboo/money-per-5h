@@ -123,6 +123,61 @@ class SessionTest {
         assertEquals(1000L, q.used)
         assertEquals(now + Plan.DURATION, s.ledger.plan!!.expiresAt)
     }
+    @Test fun increasingMultiplierRecalculatesBothRemainingQuotasWithoutResettingUsageOrTime() {
+        direct("20")
+        fun quotas() = listOf(
+            Usage.quota(s.ledger.records, s.ledger.plan!!.fiveHourLimit, Usage.FIVE_HOURS, now),
+            Usage.quota(s.ledger.records, s.ledger.plan!!.weeklyLimit, Usage.WEEK, now),
+        )
+        val before = quotas()
+        assertEquals(listOf(60, 94), before.map { it.percent })
+        advance(60_000); renew("20")
+        val after = quotas()
+        assertEquals(listOf(10_000L, 70_000L), after.map { it.limit })
+        assertEquals(listOf(2_000L, 2_000L), after.map { it.used })
+        assertEquals(before.map { it.end }, after.map { it.end })
+        assertEquals(listOf(80, 97), after.map { it.percent })
+    }
+    @Test fun changingMultiplierPreservesIndependentFiveHourAndWeeklyAnchors() {
+        direct("10", "first")
+        advance(Usage.FIVE_HOURS + 1000)
+        direct("20", "second")
+        val fiveEnd = now + Usage.FIVE_HOURS
+        val weekEnd = start + Usage.WEEK
+        renew("25")
+        val five = Usage.quota(s.ledger.records, s.ledger.plan!!.fiveHourLimit, Usage.FIVE_HOURS, now)
+        val week = Usage.quota(s.ledger.records, s.ledger.plan!!.weeklyLimit, Usage.WEEK, now)
+        assertEquals(2000L, five.used)
+        assertEquals(3000L, week.used)
+        assertEquals(fiveEnd, five.end)
+        assertEquals(weekEnd, week.end)
+    }
+    @Test fun decreasingMultiplierCanExhaustQuotaButNeverEraseUsage() {
+        direct("20")
+        val fiveEnd = start + Usage.FIVE_HOURS
+        val weekEnd = start + Usage.WEEK
+        renew("1")
+        val five = Usage.quota(s.ledger.records, s.ledger.plan!!.fiveHourLimit, Usage.FIVE_HOURS, now)
+        val week = Usage.quota(s.ledger.records, s.ledger.plan!!.weeklyLimit, Usage.WEEK, now)
+        assertEquals(2000L, five.used)
+        assertEquals(2000L, week.used)
+        assertEquals(0, five.percent)
+        assertEquals(42, week.percent)
+        assertEquals(fiveEnd, five.end)
+        assertEquals(weekEnd, week.end)
+    }
+    @Test fun septemberNineteenthUpgradeStartsThirtyDayPlanButKeepsCurrentQuotaWindows() {
+        val septemberSecond = Instant.parse("2026-09-02T02:20:00Z").toEpochMilli()
+        now = Instant.parse("2026-09-19T02:20:00Z").toEpochMilli()
+        s = Session(ledger = Ledger(plan = Plan(1000, septemberSecond)), foreground = true)
+        direct("20", "current")
+        val fiveEnd = now + Usage.FIVE_HOURS
+        val weekEnd = now + Usage.WEEK
+        renew("20")
+        assertEquals(Instant.parse("2026-10-19T02:20:00Z").toEpochMilli(), s.ledger.plan!!.expiresAt)
+        assertEquals(fiveEnd, Usage.quota(s.ledger.records, s.ledger.plan!!.fiveHourLimit, Usage.FIVE_HOURS, now).end)
+        assertEquals(weekEnd, Usage.quota(s.ledger.records, s.ledger.plan!!.weeklyLimit, Usage.WEEK, now).end)
+    }
     @Test fun cancelPlanDoesNotRenewAndDuplicateConfirmDoesNotRenewTwice() {
         val original = s.ledger.plan
         advance(1000); act(Action.Open(Dialog.PLAN)); act(Action.Close)

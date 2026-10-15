@@ -272,7 +272,7 @@ private fun EntryDialog(state: UsageUiState, dispatch: (Action) -> Unit, confirm
                         Text(parsed?.let { Money.display(it * factor) } ?: "—", fontSize = 14.sp)
                     }
                 }
-                Text("确认后有效30天。记录与现有用量窗口保留。", fontSize = 13.sp, color = Muted)
+                Text("确认后有效30天。按新倍数重算额度，已用金额和重置时间保留。", fontSize = 13.sp, color = Muted)
             }
             if (value.isNotEmpty() && parsed == null) Text(if (amount) "请输入大于0、最多两位小数的金额" else "倍数范围0.01—6666.66x，最多两位小数", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
             s.message?.let { Text(it, fontSize = 12.sp, color = MaterialTheme.colorScheme.error) }

@@ -132,7 +132,7 @@ object SessionReducer {
                 else {
                     val d = s.ledger.draft
                     s = s.copy(ledger = s.ledger.copy(plan = Plan(multiplier, now), draft = d.copy(held = d.hasContent)),
-                        deadline = null, dialog = Dialog.NONE, message = "方案已设置")
+                        deadline = null, dialog = Dialog.NONE, message = null)
                 }
             }
             is Action.Delete -> if (s.page == Page.RECORDS && s.foreground) {
