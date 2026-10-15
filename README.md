@@ -16,7 +16,7 @@
 
 - Android 11 / API 30 及以上；compile/target SDK 36。
 - Kotlin、Jetpack Compose / Material 3、Room；JDK 17，固定 Gradle Wrapper。
-- 当前版本：0.2.2。首次从旧原型升级到手动版时，按项目所有者确认的决定清除此前原型的本地账本，从空账本开始；手动版自身的更新及后续启动保留记录、方案和草稿。
+- 当前版本：0.2.3。首次从旧原型升级到手动版时，按项目所有者确认的决定清除此前原型的本地账本，从空账本开始；手动版自身的更新及后续启动保留记录、方案和草稿。
 
 配置 `JAVA_HOME`（JDK 17）和 `ANDROID_HOME`（Android SDK）后执行：
 

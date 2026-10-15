@@ -128,6 +128,8 @@ private fun UsagePage(state: UsageUiState, dispatch: (Action) -> Unit) {
                     LinearProgressIndicator(progress = { (s.remaining(state.elapsed).toFloat() / Draft.WAIT_MS).coerceIn(0f, 1f) },
                         modifier = Modifier.fillMaxWidth().height(3.dp), color = Ink, trackColor = Soft)
                 } else Spacer(Modifier.height(3.dp))
+                Text("点击下方按钮组合目标金额", fontSize = 12.sp, lineHeight = 16.sp,
+                    color = Muted, modifier = Modifier.padding(top = 4.dp))
                 if (draft.hasContent && (draft.held || !enabled)) {
                     Text(if (enabled) "已暂存，修改后继续" else "已暂存", fontSize = 12.sp, lineHeight = 16.sp,
                         color = Muted, modifier = Modifier.padding(top = 4.dp))
