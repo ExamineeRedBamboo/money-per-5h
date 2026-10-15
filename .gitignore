@@ -1,0 +1,52 @@
+# Local-only material: private ideas, real bills, screenshots, exports, agent scratch.
+# Keep tracked product docs and synthetic fixtures outside this directory.
+/.local/
+
+# Secrets and machine-specific configuration.
+.env
+.env.*
+!.env.example
+!.env.*.example
+local.properties
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# Editor and OS files.
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Temporary output and logs.
+*.log
+*.tmp
+*.bak
+/tmp/
+/temp/
+/coverage/
+
+# Build output and local dependency caches.
+build/
+/dist/
+.gradle/
+.kotlin/
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+*.apk
+*.aab
+*.ipa
+
+# Local runtime databases.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
